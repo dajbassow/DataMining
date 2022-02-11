@@ -31,41 +31,48 @@ def get_table_name():
 
 # generate_data generates sales data for a year
 def generate_data(cursor, db_connection):
-    # Get table name as input from user
-    table_name = get_table_name()
-
-    # Generate data for a year in a loop
-    for i in range(1, 365):
-        # Valentines day
-        if 40 <= i <= 45:
-            rand_int = random.randint(100, 150)
-            sinus_result = rand_int * math.sin((i + 80) * 8 * math.pi / 365) + 30
-        # Black Friday
-        if 300 <= i <= 307:
-            rand_int = random.randint(100, 150)
-            sinus_result = rand_int * math.sin((i + 80) * 8 * math.pi / 365) + 30
-        # Pre-Christmas-Time
-        if 335 <= i <= 356:
-            rand_int = random.randint(100, 150)
-            sinus_result = rand_int * math.sin((i + 80) * 8 * math.pi / 365) + 30
-        # Christmas (Holidays, DROP)
-        if 357 <= i <= 361:
-            rand_int = round(random.uniform(30, 20), 2)
-            print(rand_int)
-            sinus_result = rand_int * math.sin((i + 80) * 8 * math.pi / 365) + 30
-        # Every other day of  the year
-        else:
-            sinus_result = 10 * math.sin((i + 80) * 8 * math.pi / 365) + 30
-
-        # Try to insert the result into the db
-        try:
-            # insert_query = f'INSERT INTO {tablename} (day, sales) Values ({i}, {round(sinus_result, 2)})'
-            update_statement = f'UPDATE {table_name} SET sales = {round(sinus_result, 2)} WHERE day = {i}'
-            cursor.execute(update_statement)
-            db_connection.commit()
-        # Error handling
-        except sqlite3.Error as error:
-            print('Error while inserting to your sqlite database.', error)
+    print('Enter your desired years as an int: ')
+    years = int(input())
+    new_years_sale_number = 0
+    for i in range(1, years):
+        table_name = get_table_name()
+        # Generate data for a year in a loop
+        for i in range(1, 365):
+            # Valentines day
+            if 38 <= i <= 42:
+                rand_num = random.randint(100, 120)
+                sinus_result = 0.1 * i + rand_num * math.sin((i + 80) * 16 * math.pi / 365) + new_years_sale_number + 200
+            # summer sale
+            elif 182 <= i <= 235:
+                rand_num = random.randint(80, 85)
+                sinus_result = 0.1 * i + rand_num * math.sin((i + 80) * 16 * math.pi / 365) + new_years_sale_number + 50
+            # Black Friday
+            elif 300 <= i <= 307:
+                rand_num = random.randint(100, 120)
+                sinus_result = 0.1 * i + rand_num * math.sin((i + 80) * 16 * math.pi / 365) + new_years_sale_number + 50
+            # christmas
+            elif 335 <= i <= 356:
+                rand_num = random.randint(80, 90)
+                sinus_result = 0.1 * i + rand_num * math.sin((i + 80) * 16 * math.pi / 365) + new_years_sale_number + 50
+            # end of the year
+            elif 357 <= i <= 365:
+                rand_num = round(random.uniform(0, 5), 2)
+                sinus_result = 0.1 * i + rand_num * math.sin((i + 80) * 16 * math.pi / 365) + new_years_sale_number + 50
+                new_years_sale_number = int(sinus_result)           
+            else:
+                sinus_result = 0.1 * i + 50 * math.sin((i + 80) * 16 * math.pi / 365) + new_years_sale_number + 50
+            
+            # Try to insert the result into the db
+            try:
+                create_table = f'CREATE TABLE {table_name} (day int, sales decimal);'
+                #insert_query = f'INSERT INTO {table_name} (day, sales) Values ({i}, {round(sinus_result, 2)});'
+                #update_statement = f'UPDATE {table_name} SET sales = {round(sinus_result, 2)} WHERE day = {i}'
+                cursor.execute(create_table)
+                #cursor.execute(insert_query)
+                db_connection.commit()
+            # Error handling
+            except sqlite3.Error as error:
+                print('Error while inserting to your sqlite database.', error)
 
 
 # SELECT QUERY
