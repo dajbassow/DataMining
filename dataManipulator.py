@@ -16,7 +16,7 @@ def get_db_connection():
 
 
 # Close db connection
-def close_db_connection():
+def close_db_connection(cursor, db_connection):
     if db_connection:
         cursor.close()
         db_connection.close()
@@ -34,10 +34,18 @@ def generate_data(cursor, db_connection):
     print('Enter your desired years as an int: ')
     years = int(input())
     new_years_sale_number = 0
-    for i in range(1, years):
+    for i in range(0, years):
         table_name = get_table_name()
+        rand_increas_number = round(random.uniform(0.1, 0.5), 2)
+        try:
+            drop_table = f'DROP TABLE IF EXISTS {table_name};'
+            cursor.execute(drop_table)
+            create_table = f'CREATE TABLE {table_name} (day int, sales decimal);'
+            cursor.execute(create_table)
+        except sqlite3.Error as error:
+                print('Error while creating your tables.', error)
         # Generate data for a year in a loop
-        for i in range(1, 365):
+        for i in range(1, 366):
             # Valentines day
             if 38 <= i <= 42:
                 rand_num = random.randint(100, 120)
@@ -57,22 +65,21 @@ def generate_data(cursor, db_connection):
             # end of the year
             elif 357 <= i <= 365:
                 rand_num = round(random.uniform(0, 5), 2)
-                sinus_result = 0.1 * i + rand_num * math.sin((i + 80) * 16 * math.pi / 365) + new_years_sale_number + 50
-                new_years_sale_number = int(sinus_result)           
+                sinus_result = 0.1 * i + rand_num * math.sin((i + 80) * 16 * math.pi / 365) + new_years_sale_number + 50          
             else:
                 sinus_result = 0.1 * i + 50 * math.sin((i + 80) * 16 * math.pi / 365) + new_years_sale_number + 50
             
             # Try to insert the result into the db
             try:
-                create_table = f'CREATE TABLE {table_name} (day int, sales decimal);'
-                #insert_query = f'INSERT INTO {table_name} (day, sales) Values ({i}, {round(sinus_result, 2)});'
-                #update_statement = f'UPDATE {table_name} SET sales = {round(sinus_result, 2)} WHERE day = {i}'
-                cursor.execute(create_table)
-                #cursor.execute(insert_query)
+                insert_query = f'INSERT INTO {table_name} (day, sales) Values ({i}, {round(sinus_result, 2)});'
+                cursor.execute(insert_query)
                 db_connection.commit()
             # Error handling
             except sqlite3.Error as error:
                 print('Error while inserting to your sqlite database.', error)
+        
+        record = fetch_last_sale(cursor, table_name)
+        new_years_sale_number = int(record[0][1])
 
 
 # SELECT QUERY
@@ -83,6 +90,12 @@ def fetch_data(cursor):
     record = cursor.fetchall()
     return record
 
+def fetch_last_sale(cursor, table_name):
+    select_query = f'SELECT * FROM {table_name} WHERE day=365;'
+    cursor.execute(select_query)
+    record = cursor.fetchall()
+    print(record)
+    return record
 
 def draw_plot_data(cursor):
     table_name = get_table_name()
@@ -99,8 +112,5 @@ def draw_plot_data(cursor):
 
 cursor, db_connection = get_db_connection()
 generate_data(cursor, db_connection)
-record = fetch_data(cursor)
 draw_plot_data(cursor)
 close_db_connection(cursor, db_connection)
-
-print(record[0])
