@@ -85,13 +85,11 @@ def generate_data(cursor, db_connection):
 
 
 # SELECT QUERY
-def fetch_data(cursor):
-    table_name = get_table_name()
+def fetch_data(cursor, table_name):
     select_query = f'SELECT * FROM {table_name}'
     cursor.execute(select_query)
     record = cursor.fetchall()
     print(record)
-    print(record[1][1])
     return record
 
 def fetch_last_sale(cursor, table_name):
@@ -101,7 +99,7 @@ def fetch_last_sale(cursor, table_name):
     print(record)
     return record
 
-def plot_single_data(cursor, sqliteConnection):
+def plot_single_table(cursor, sqliteConnection):
     table_name = get_table_name()
     sqlite_select_query = f'SELECT day FROM {table_name}'
     cursor.execute(sqlite_select_query)
@@ -160,7 +158,7 @@ def plot_table_mean(cursor, sqliteConnection, table_name):
     std = get_standard_deviation(sqliteConnection, table_name)
 
     plt.plot(sales_x, sales_y, label=f'{table_name}')
-    plt.plot(sales_x, sales_x_array * 0.1 + 75, label='linear gradient')
+    #plt.plot(sales_x, sales_x_array * 0.1 + 75, label='linear gradient')
     plt.axhline(mean, label='mean', color='r')
     plt.axhline(std + mean, label='standard deviation', color='g')
     plt.axhline(mean - std, color='g')
@@ -203,13 +201,13 @@ def get_peaks(sqlliteConnection, cursor):
 
 cursor, sqliteConnection = get_db_connection()
 fetch_data(cursor, "Verkauf2020")
-# get_peaks(sqliteConnection, cursor)
-# generate_data(cursor, sqliteConnection)
+#get_peaks(sqliteConnection, cursor)
+#generate_data(cursor, sqliteConnection)
 # table_name = get_table_name()
 # record = fetch_data(cursor, sqliteConnection, table_name)
 # plot_single_table(cursor, sqliteConnection)
 # plot_all_tables(cursor, sqliteConnection)
-# get_mean(sqliteConnection, 'verkauf2020')
-# get_standard_deviation(sqliteConnection, "verkauf2020")
-plot_table_mean(cursor, sqliteConnection, 'verkauf2020')
+# get_mean(sqliteConnection, 'Verkauf2019')
+# get_standard_deviation(sqliteConnection, "Verkauf2020")
+plot_table_mean(cursor, sqliteConnection, 'Verkauf2020')
 close_db_connection(cursor, sqliteConnection)
